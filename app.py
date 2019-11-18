@@ -7,10 +7,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 BATCH_SIZE = 32
 SPLIT_WEIGHTS = (8, 1, 1)
 splits = tfds.Split.TRAIN.subsplit(weighted=SPLIT_WEIGHTS)
-(raw_train, raw_validation, raw_test), metadata = tfds.load(name="tf_flowers", 
-                                                            with_info=True,
-                                                            split=list(splits),                                       
-                                                            as_supervised=True)
+(raw_train, raw_validation, raw_test), metadata = tfds.load(name="cats_vs_dogs", 
+                                                        with_info=True,
+                                                        split=list(splits),                                       
+                                                        as_supervised=True)
 
 def format_example(image, label):
         image = tf.cast(image, tf.float32)
