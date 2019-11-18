@@ -4,6 +4,7 @@ from tensorflow import keras
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+BATCH_SIZE = 32
 SPLIT_WEIGHTS = (8, 1, 1)
 splits = tfds.Split.TRAIN.subsplit(weighted=SPLIT_WEIGHTS)
 (raw_train, raw_validation, raw_test), metadata = tfds.load(name="tf_flowers", 
@@ -30,7 +31,7 @@ train = train.map(augment_data)
 
 def shuffle_and_batch(dataset):
         ds = dataset.apply( tf.data.experimental.shuffle_and_repeat(buffer_size=218))
-        ds = ds.batch(32)
+        ds = ds.batch(BATCH_SIZE)
         ds = ds.prefetch(buffer_size=218)
 
 shuffle_and_batch(train)
@@ -51,3 +52,35 @@ def create_model():
         model = keras.Model(inputs=img_inputs, outputs=output)
 
         return model
+
+num_train, num_val, num_test = (
+metadata.splits['train'].num_examples * weight/10 
+for weight in SPLIT_WEIGHTS
+)
+
+steps_per_epoch = round(num_train)//BATCH_SIZE
+validation_steps = round(num_val)//BATCH_SIZE
+
+def train_model(model):
+        model.compile(optimizer='adam',
+                loss='sparse_categorical_crossenthropy',
+                metrics='accuracy')
+
+        tensoboard_callback = keras.callbacks.Tensorboard(log_dir=log_dir, histogram_freq=1)
+        model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
+                'training_checkpoints/weights.{epoch:02d}-{val_loss:.2f}.hdf5', period=5)
+        os.makedirs('training_checkpoints/', exist_ok=True)
+        early_stopping_checkpoint = keras.callbacks.EarlyStopping(patience=5)
+
+        history = model.fit(
+                train.repeat(),
+                epochs=epochs,
+                steps_per_epoch=steps_per_epoch,
+                validation_data=validation.repeat(),
+                validation_steps=validation_steps,
+                callbacks=[tensorboard_callback,
+                        model_checkpoint_callback,
+                        early_stopping_checkpoint]
+                )
+
+        return history
