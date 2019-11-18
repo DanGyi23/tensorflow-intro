@@ -104,3 +104,26 @@ def build_model():
 
 inception_model = build_model()
 
+base_model.trainable = True
+# Let's take a look to see how many layers are in the base model
+print("Number of layers in the base model: ", len(base_model.layers))
+
+# Fine tune from this layer onwards
+fine_tune_at = 249
+
+# Freeze all the layers before the `fine_tune_at` layer
+for layer in base_model.layers[:fine_tune_at]:
+        layer.trainable =  False
+
+# Compile the model using a much lower learning rate.
+inception_model.compile(optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy'])
+
+history_fine = inception_model.fit(train.repeat(), 
+                                steps_per_epoch = steps_per_epoch,
+                                epochs = finetune_epochs, 
+                                initial_epoch = initial_epoch,
+                                validation_data = validation.repeat(), 
+                                validation_steps = validation_steps)
+
