@@ -39,7 +39,7 @@ shuffle_and_batch(validation)
 shuffle_and_batch(test)
 
 def create_model():
-        img_inputs = keras.Input(shape=IMG_SHAPE)
+        img_inputs = keras.Input(shape=(128, 128, 3))
         conv_1 = keras.layers.Conv2D(32, (3,3), activation=relu)(img_inputs)
         maxpool_1 = keras.layers.Maxpooling2D((2,2))(conv_1)
         conv_2 = keras.layers.Conv2D(64, (3, 3), activation='relu')(maxpool_1)
@@ -84,3 +84,7 @@ def train_model(model):
                 )
 
         return history
+
+base_model = keras.applications.InceptionV3(input_shape=(128, 128, 3),
+                                        include_top=False, 
+                                        weights='imagenet')
