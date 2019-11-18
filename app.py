@@ -88,3 +88,19 @@ def train_model(model):
 base_model = keras.applications.InceptionV3(input_shape=(128, 128, 3),
                                         include_top=False, 
                                         weights='imagenet')
+
+def build_model():
+        model = keras.Sequential([
+                base_model,
+                keras.layers.GlobalAveragePooling2D(),
+                keras.layers.Dense(metadata.features['label'].num_classes,
+                activation='softmax')
+        ])
+
+        model.compile(optimizer='adam',
+                loss='sparse_categorical_crossentropy',
+                metrics=['accuracy'])
+        return model
+
+inception_model = build_model()
+
