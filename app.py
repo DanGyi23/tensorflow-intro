@@ -15,3 +15,8 @@ IMG_SIZE = 50
 LR = 1e-3
 
 MODEL_NAME = 'dogsvscats-{}-{}.model'.format(LR, '2conv-basic')
+
+def label_img(img):
+        word_label = img.split('.')[-3]
+        if word_label == 'cat': return [1,0]
+        elif word_label == 'dog': return [0,1]
