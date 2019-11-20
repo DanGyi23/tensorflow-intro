@@ -1,2 +1,5 @@
 preview/
 dogs-vs-cats/
+bottleneck_features_validation.npy
+first_try.h5
+bottleneck_features_train.npy
